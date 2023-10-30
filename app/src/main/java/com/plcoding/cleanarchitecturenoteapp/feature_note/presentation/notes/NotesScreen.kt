@@ -10,15 +10,21 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Sort
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.plcoding.cleanarchitecturenoteapp.feature_note.presentation.notes.components.NoteItem
 import com.plcoding.cleanarchitecturenoteapp.feature_note.presentation.notes.components.OrderSection
 import com.plcoding.cleanarchitecturenoteapp.feature_note.presentation.util.Screen
+import com.plcoding.cleanarchitecturenoteapp.feature_note.presentation.util.TestTags
 import kotlinx.coroutines.launch
 
 @ExperimentalAnimationApi
@@ -30,6 +36,10 @@ fun NotesScreen(
     val state = viewModel.state.value
     val scaffoldState = rememberScaffoldState()
     val scope = rememberCoroutineScope()
+
+    var toggleState by remember {
+        mutableStateOf(true)
+    }
 
     Scaffold(
         floatingActionButton = {
@@ -59,25 +69,28 @@ fun NotesScreen(
                     style = MaterialTheme.typography.h4
                 )
                 IconButton(
+                    modifier = Modifier.testTag(TestTags.SORT_DESCRIPTION),
                     onClick = {
-                        viewModel.onEvent(NotesEvent.ToggleOrderSection)
+                        //viewModel.onEvent(NotesEvent.ToggleOrderSection)
+                              toggleState = !toggleState
                     },
                 ) {
                     Icon(
                         imageVector = Icons.Default.Sort,
-                        contentDescription = "Sort"
+                        contentDescription = "Sort",
                     )
                 }
             }
             AnimatedVisibility(
-                visible = state.isOrderSectionVisible,
+                visible = toggleState,//state.isOrderSectionVisible,
                 enter = fadeIn() + slideInVertically(),
                 exit = fadeOut() + slideOutVertically()
             ) {
                 OrderSection(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(vertical = 16.dp),
+                        .padding(vertical = 16.dp)
+                        .testTag(TestTags.SORT_SECTION),
                     noteOrder = state.noteOrder,
                     onOrderChange = {
                         viewModel.onEvent(NotesEvent.Order(it))
